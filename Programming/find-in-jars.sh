@@ -16,7 +16,7 @@ NEEDLE="$2"
 IFS=$'\n'
 
 for i in $(find $HAYSTACK -name "*.jar"); do
-	if [[ $(jar -tf "$i" | grep "$2") ]]; then
+	if [[ $(jar -tf "$i" | grep "$NEEDLE") ]]; then
 		echo "$i"
 	fi
 done
