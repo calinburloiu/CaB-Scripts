@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+# 2010, Calin-Andrei Burloiu, calin.burloiu@gmail.com
+#
+# This scripts converts all mts files to avi starting from a root directory
+# recursively. The avi files are placed in the same directory as the 
+# original mts files.
+#
+
+if [ $# -ne 1 ]; then
+	echo "usage: $0 root_path"
+fi
+
+root_path=$1
+
+(
+IFS=$'\n'
+for filename in $(find "$root_path" -name '*.mts'); do
+	new_filename=$(dirname "$filename")/$(basename "$filename" .mts).avi
+	rm "$new_filename"
+	./ffmpeg-mts2avi-custom "$filename" "$new_filename" 800x600
+done
+)

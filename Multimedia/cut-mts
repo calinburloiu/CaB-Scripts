@@ -1,0 +1,26 @@
+#!/bin/bash
+#
+# Calin-Andrei Burloiu, 2010, calin.burloiu@gmail.com
+#
+# This script cuts .mts video file starting from a seek point  
+# with a desired duration. Seek point and duration are expressed in 
+# seconds or in the hh:mm:ss[.xx] format.
+#
+
+if test $# -ne 4; then
+    echo "Usage: $0 mts-input-file mts-output-file seek-point duration"
+    exit 1
+fi
+
+MTS_IN="$1"
+MTS_OUT="$2"
+SEEK_POINT="$3"
+DURATION="$4"
+FFMPEG=/usr/bin/ffmpeg
+
+if test ! -f "$MTS_IN"; then
+    echo "Error: No such file $MTS_IN"
+    exit 1
+fi
+
+"$FFMPEG" -ss "$SEEK_POINT" -t "$DURATION" -i "$MTS_IN" -f mpegts -acodec copy -vcodec copy "$MTS_OUT"

@@ -1,0 +1,24 @@
+#!/bin/bash
+#
+# Calin-Andrei Burloiu, 2010, calin.burloiu@gmail.com
+#
+# This script converts an MTS file into an AVI file, which 
+# contains an H.264 video stream and and an MP3 audio stream.
+#
+
+if test $# -ne 2; then
+    echo "Usage: $0 mts-file avi-file"
+    exit 1
+fi
+
+MTS_FILE="$1"
+AVI_FILE="$2"
+FFMPEG=/usr/bin/ffmpeg
+
+if test ! -f "$MTS_FILE"; then
+    echo "Error: No such: file $MTS_FILE"
+    exit 1
+fi
+
+$FFMPEG -i "$MTS_FILE" -f avi -acodec libmp3lame -ab 256k -ar 44100 -ac 2 -vcodec libx264 -vpre normal -b 1400k -r 25 -threads 0 "$AVI_FILE"
+

@@ -1,0 +1,74 @@
+#!/bin/bash
+#
+# Calin-Andrei Burloiu, 2010, calin.burloiu@gmail.com
+#
+# This script transcodes all input videos with a specified extension to a new
+# format with a given resolutin and video bitrate. The audio bitrate is hard
+# coded to 192 kb/s. The output_path parameter is optional. If not given it
+# puts all output files in the same folder as the corresponding input.
+#
+
+if test $# -lt 4; then
+    echo "Usage: $0 input-path input-extension output-format resolution video-bitrate [output-suffix] [output_path]"
+    exit 1
+fi
+
+in_path="$1"
+in_ext="$2"
+out_format="$3"
+resolution="$4"
+bitrate="$5"
+if [ ! -z "$6" ]; then
+    out_suffix="$6"
+else
+    out_suffix=""
+fi
+if [ ! -z "$7" ]; then
+    out_path="$7"
+fi
+
+FFMPEG=/usr/bin/ffmpeg
+ABITRATE=192k
+
+(
+IFS=$'\n'
+for filename in $(find "$in_path" -name "*.$in_ext"); do
+    if [ ! -z "$out_path" ]; then
+        new_filename="${out_path}"$(basename "$filename" ."$in_ext")"$out_suffix"."$out_format"
+    else
+        new_filename=$(dirname "$filename")/$(basename "$filename" ."$in_ext")"$out_suffix"."$out_format"
+    fi
+
+    if [ -e $new_filename ]; then
+        echo "$0: $new_filename already exists" >&2
+        continue
+    fi
+
+    case "$out_format" in
+        "avi" )
+            $FFMPEG -i "$filename" -f avi -acodec libmp3lame -ab $ABITRATE -ar 44100 -ac 2 -vcodec libx264 -vpre normal -b "$bitrate" -r 25 -s $resolution -threads 0 "$new_filename"
+            ;;
+        "flv" )
+            $FFMPEG -i "$filename" -f flv -acodec libmp3lame -ab $ABITRATE -ar 44100 -ac 2 -vcodec libx264 -vpre normal -b "$bitrate" -r 25 -s $resolution -threads 0 "$new_filename"
+            ;;
+        "mp4" )
+            $FFMPEG -i "$filename" -f mp4 -acodec libmp3lame -ab $ABITRATE -ar 44100 -ac 2 -vcodec libx264 -vpre normal -b "$bitrate" -r 25 -s "$resolution" -threads 0 "$new_filename"
+            ;;
+        "ogg" )
+            $FFMPEG -i "$filename" -f ogg -acodec libvorbis -ab $ABITRATE -ar 44100 -ac 2 -vcodec libtheora -b "$bitrate" -r 25 -s $resolution -threads 0 "$new_filename"
+            ;;
+        "webm" )
+            $FFMPEG -i "$filename" -f webm -acodec libvorbis -ab $ABITRATE -ar 44100 -ac 2 -vcodec libvpx -b "$bitrate" -r 25 -s $resolution -threads 0 "$new_filename"
+            ;;
+        "ts" )
+            $FFMPEG -i "$filename" -f mpegts -acodec libmp3lame -ab $ABITRATE -ar 44100 -ac 2 -vcodec libx264 -vpre normal -b "$bitrate" -r 25 -s $resolution -threads 0 "$new_filename"
+            ;;
+
+        * )
+            echo "Format $out_format is not implemented!" 1>&2
+            exit 1
+            ;;
+    esac
+
+done
+)

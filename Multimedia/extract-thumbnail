@@ -1,0 +1,37 @@
+#!/bin/bash
+#
+# Calin-Andrei Burloiu, 2011, calin.burloiu@gmail.com
+#
+# This script extracts a thumbnail from a random frame of a video file.
+# 
+#
+
+if test $# -ne 3; then
+    echo "Usage: $0 input-video output-image resolution"
+    exit 1
+fi
+
+in="$1"
+out="$2"
+resolution="$3"
+FFMPEG=/usr/bin/ffmpeg
+
+if test ! -f "$in"; then
+    echo "Error: No such file $in"
+    exit 1
+fi
+
+# Choose a random frame
+str_duration=$(mediainfo --Inform="General;%Duration/String3%" "$in" | cut -d"." -f1)
+h=$(echo $str_duration | cut -d":" -f1 | sed -r 's/^[0]*//')
+if [ -z "$h" ]; then h=0; fi
+m=$(echo $str_duration | cut -d":" -f2 | sed -r 's/^[0]*//')
+if [ -z "$m" ]; then m=0; fi
+s=$(echo $str_duration | cut -d":" -f3 | sed -r 's/^[0]*//')
+if [ -z "$s" ]; then s=0; fi
+s=$(($h * 3600 + $m * 60 + $s))
+
+seek_point=$(echo "$s $RANDOM" | awk '{ print int($1 * $2 / 32767) }')
+
+#"$FFMPEG" -i "$in" -ss "$seek_point" -vframes 1 -s "$resolution" -f image2 "$out"
+"$FFMPEG" -ss "$seek_point" -i "$in" -vcodec mjpeg -vframes 1 -an -s "$resolution" -f rawvideo "$out"
