@@ -1,0 +1,18 @@
+#!/bin/bash
+
+sudo ip link set dev tap1 down
+sudo ip link set dev tap2 down
+sudo ip link set dev tap3 down
+sudo ip link set dev tap4 down
+sudo ip link set dev kvmbr0 down
+sudo brctl delif kvmbr0 tap1
+sudo brctl delif kvmbr0 tap2
+sudo brctl delif kvmbr0 tap3
+sudo brctl delif kvmbr0 tap4
+sudo tunctl -d tap1
+sudo tunctl -d tap2
+sudo tunctl -d tap3
+sudo tunctl -d tap4
+sudo brctl delbr kvmbr0
+
+sudo iptables -t nat -D POSTROUTING -o eth0 -s 192.168.122.0/24 -j MASQUERADE

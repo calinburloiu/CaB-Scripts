@@ -1,0 +1,20 @@
+#!/bin/bash
+
+sudo brctl addbr kvmbr0
+sudo tunctl -u $(whoami) -t tap1
+sudo brctl addif kvmbr0 tap1
+sudo tunctl -u $(whoami) -t tap2
+sudo brctl addif kvmbr0 tap2
+sudo tunctl -u $(whoami) -t tap3
+sudo brctl addif kvmbr0 tap3
+sudo tunctl -u $(whoami) -t tap4
+sudo brctl addif kvmbr0 tap4
+sudo ip a a 192.168.122.1/24 dev kvmbr0
+sudo ip link set dev tap1 up
+sudo ip link set dev tap2 up
+sudo ip link set dev tap3 up
+sudo ip link set dev tap4 up
+sudo ip link set dev kvmbr0 up
+
+sudo iptables -t nat -D POSTROUTING -o eth0 -s 192.168.122.0/24 -j MASQUERADE > /dev/null 2>&1
+sudo iptables -t nat -A POSTROUTING -o eth0 -s 192.168.122.0/24 -j MASQUERADE
