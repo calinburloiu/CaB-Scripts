@@ -19,5 +19,4 @@ fi
 
 IFS=$'\n'
 
-#ls -l $(find "$DIR" -name "$PATT") | tr -s " " "*" | awk -F '*' 'BEGIN { max = -1; maxFile = "-" }; { if ($5 > max) { max = $5; maxFile = $9 } }; END { print max, "\t", maxFile }'
-ls -l $(find "$DIR" -name "$PATT") | tr -s " " "*" | awk -F '*' -f file-size-statistics.awk
+ls -l --time-style iso $(find "$DIR" -name "$PATT") | tr -s " " "*" | awk -F '*' -f file-size-statistics.awk
