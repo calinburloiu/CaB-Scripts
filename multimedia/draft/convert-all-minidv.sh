@@ -1,6 +1,6 @@
 # $EXE <input_dir> <output_dir>
 
-SLEEP=300
+SLEEP=120
 
 IFS=$'\n'
 
