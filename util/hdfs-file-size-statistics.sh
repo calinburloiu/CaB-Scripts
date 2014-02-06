@@ -18,7 +18,6 @@ fi
 IFS=$'\n'
 
 if [ "$PATT" ]; then
-    echo "* $PATT"
     hdfs dfs -ls -R "$DIR" | grep "$PATT" | tr -s " " "*" | awk -F '*' -f file-size-statistics.awk
 else
     hdfs dfs -ls -R "$DIR" | tr -s " " "*" | awk -F '*' -f file-size-statistics.awk
