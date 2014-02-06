@@ -13,7 +13,6 @@ BEGIN {
 		}
 
 		if ($5 < min) {
-			print "crt_min: ", $5
 			min = $5;
 			minFile = $8;
 		}
