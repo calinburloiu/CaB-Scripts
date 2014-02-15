@@ -1,1 +1,0 @@
-ffmpeg -i "2004-vara - Italia 4 - Venetia, Gratz.mp4" -map 0:1 it4_audio01.wav
