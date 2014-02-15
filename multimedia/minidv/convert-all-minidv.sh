@@ -1,6 +1,6 @@
 # $EXE <input_dir> <output_dir>
 
-SLEEP=120
+SLEEP=300
 
 IFS=$'\n'
 for video in $(find "$1" -name "*.dv"); do
