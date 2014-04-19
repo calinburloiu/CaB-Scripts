@@ -16,11 +16,11 @@ MTS_IN="$1"
 MTS_OUT="$2"
 SEEK_POINT="$3"
 DURATION="$4"
-FFMPEG=/usr/bin/ffmpeg
+CONV_APP="${CONV_APP:-/usr/bin/ffmpeg}
 
 if test ! -f "$MTS_IN"; then
     echo "Error: No such file $MTS_IN"
     exit 1
 fi
 
-"$FFMPEG" -ss "$SEEK_POINT" -t "$DURATION" -i "$MTS_IN" -f mpegts -acodec copy -vcodec copy "$MTS_OUT"
+"$CONV_APP" -ss "$SEEK_POINT" -t "$DURATION" -i "$MTS_IN" -f mpegts -acodec copy -vcodec copy "$MTS_OUT"

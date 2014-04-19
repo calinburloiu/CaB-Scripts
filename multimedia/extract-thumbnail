@@ -14,7 +14,7 @@ fi
 in="$1"
 out="$2"
 resolution="$3"
-FFMPEG=/usr/bin/ffmpeg
+CONV_APP="${CONV_APP:-/usr/bin/ffmpeg}
 
 if test ! -f "$in"; then
     echo "Error: No such file $in"
@@ -33,5 +33,5 @@ s=$(($h * 3600 + $m * 60 + $s))
 
 seek_point=$(echo "$s $RANDOM" | awk '{ print int($1 * $2 / 32767) }')
 
-#"$FFMPEG" -i "$in" -ss "$seek_point" -vframes 1 -s "$resolution" -f image2 "$out"
-"$FFMPEG" -ss "$seek_point" -i "$in" -vcodec mjpeg -vframes 1 -an -s "$resolution" -f rawvideo "$out"
+#"$CONV_APP" -i "$in" -ss "$seek_point" -vframes 1 -s "$resolution" -f image2 "$out"
+"$CONV_APP" -ss "$seek_point" -i "$in" -vcodec mjpeg -vframes 1 -an -s "$resolution" -f rawvideo "$out"

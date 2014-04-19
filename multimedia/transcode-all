@@ -27,7 +27,7 @@ if [ ! -z "$7" ]; then
     out_path="$7"
 fi
 
-FFMPEG=/usr/bin/ffmpeg
+CONV_APP=${CONV_APP:-/usr/bin/ffmpeg}
 ABITRATE=192k
 
 (
@@ -46,22 +46,22 @@ for filename in $(find "$in_path" -name "*.$in_ext"); do
 
     case "$out_format" in
         "avi" )
-            $FFMPEG -i "$filename" -f avi -acodec libmp3lame -ab $ABITRATE -ar 44100 -ac 2 -vcodec libx264 -vpre normal -b "$bitrate" -r 25 -s $resolution -threads 0 "$new_filename"
+            $CONV_APP -i "$filename" -f avi -acodec libmp3lame -ab $ABITRATE -ar 44100 -ac 2 -vcodec libx264 -vpre normal -b "$bitrate" -r 25 -s $resolution -threads 0 "$new_filename"
             ;;
         "flv" )
-            $FFMPEG -i "$filename" -f flv -acodec libmp3lame -ab $ABITRATE -ar 44100 -ac 2 -vcodec libx264 -vpre normal -b "$bitrate" -r 25 -s $resolution -threads 0 "$new_filename"
+            $CONV_APP -i "$filename" -f flv -acodec libmp3lame -ab $ABITRATE -ar 44100 -ac 2 -vcodec libx264 -vpre normal -b "$bitrate" -r 25 -s $resolution -threads 0 "$new_filename"
             ;;
         "mp4" )
-            $FFMPEG -i "$filename" -f mp4 -acodec libmp3lame -ab $ABITRATE -ar 44100 -ac 2 -vcodec libx264 -vpre normal -b "$bitrate" -r 25 -s "$resolution" -threads 0 "$new_filename"
+            $CONV_APP -i "$filename" -f mp4 -acodec libmp3lame -ab $ABITRATE -ar 44100 -ac 2 -vcodec libx264 -vpre normal -b "$bitrate" -r 25 -s "$resolution" -threads 0 "$new_filename"
             ;;
         "ogg" )
-            $FFMPEG -i "$filename" -f ogg -acodec libvorbis -ab $ABITRATE -ar 44100 -ac 2 -vcodec libtheora -b "$bitrate" -r 25 -s $resolution -threads 0 "$new_filename"
+            $CONV_APP -i "$filename" -f ogg -acodec libvorbis -ab $ABITRATE -ar 44100 -ac 2 -vcodec libtheora -b "$bitrate" -r 25 -s $resolution -threads 0 "$new_filename"
             ;;
         "webm" )
-            $FFMPEG -i "$filename" -f webm -acodec libvorbis -ab $ABITRATE -ar 44100 -ac 2 -vcodec libvpx -b "$bitrate" -r 25 -s $resolution -threads 0 "$new_filename"
+            $CONV_APP -i "$filename" -f webm -acodec libvorbis -ab $ABITRATE -ar 44100 -ac 2 -vcodec libvpx -b "$bitrate" -r 25 -s $resolution -threads 0 "$new_filename"
             ;;
         "ts" )
-            $FFMPEG -i "$filename" -f mpegts -acodec libmp3lame -ab $ABITRATE -ar 44100 -ac 2 -vcodec libx264 -vpre normal -b "$bitrate" -r 25 -s $resolution -threads 0 "$new_filename"
+            $CONV_APP -i "$filename" -f mpegts -acodec libmp3lame -ab $ABITRATE -ar 44100 -ac 2 -vcodec libx264 -vpre normal -b "$bitrate" -r 25 -s $resolution -threads 0 "$new_filename"
             ;;
 
         * )
