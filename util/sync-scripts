@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+USAGE="$(cat <<EOF
+Usage: $0 <src> <dest>
+Copy all files from current user <src> directory to <dest> bdo directory. The
+files in the destination directory will be owned by bdo. The script makes sure
+that source files are syched even if bdo can\'t read current user files.
+EOF
+)"
+
+TMP_DIR=/tmp/sync-script/
+
+if [ $# -ne 2 ]; then
+    echo "$USAGE" >&2
+    exit 1
+fi
+
+SRC=$1
+DEST=$2
+
+mkdir -p "$TMP_DIR"
+rsync -av "$SRC" "$TMP_DIR"
+find "$TMO_DIR" -type d | chmod a+rx
+find "$TMO_DIR" -type f | chmod a+r
+sudo -u bdo rsync -avz "$TMP_DIR" "$DEST"
+rm -rf "$TMP_DIR"
