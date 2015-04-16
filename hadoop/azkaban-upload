@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+
+USAGE="$(cat <<EOF
+Usage: $0 <project> <zip_file> [conf_file]
+
+Upload a zip file to Azkaban for a specified project.
+
+You can optionally specify a configuration file which contains environment
+variables URL, USERNAME and PASSWORD for connecting to Azkaban web server. If
+no configuration file is passed a file named azkaban-upload.conf is searched in
+current directory and in /etc/azkaban-upload.conf is this order.
+EOF
+)"
+
+# Check arguments.
+if [ $# -lt 2 ]; then
+    echo "$USAGE" >&2
+    exit 10
+fi
+
+PROJECT="$1"
+ZIP_FILE="$2"
+
+# Searching for a configuration file.
+if [ -e "$3" ]; then
+    CONF_FILE="$3"
+    echo "Using configuration file passed as argument '$CONF_FILE'."
+elif [ -e "azkaban-upload.conf" ]; then
+    CONF_FILE="azkaban-upload.conf"
+    echo "Using configuration file from current directory '$CONF_FILE'."
+elif [ -e "/etc/azkaban-upload.conf" ]; then
+    CONF_FILE="/etc/azkaban-upload.conf"
+    echo "Using global configuration file '$CONF_FILE'."
+else
+    echo "No configuration file found either as argument, in current directory or in /etc." >&2
+    exit 11
+fi
+
+# Check if all Azkaban web server connection settings are provided in the
+# configuration file.
+source "$CONF_FILE"
+if [ -z "$URL" ] || [ -z "$USERNAME" ] || [ -z "PASSWORD" ]; then
+    echo "Configuration file should have all URL, USERNAME and PASSWORD variables set." >&2
+    exit 12
+fi
+
+function authenticate {
+    echo "Authenticating..."
+    res="$(curl -s -k -X POST \
+            --data-urlencode "action=login" \
+            --data-urlencode "username=$USERNAME" \
+            --data-urlencode "password=$PASSWORD" \
+            $URL)"
+
+    status="$(echo "$res" | jq --raw-output .status)"
+    if [ "$status" == "success" ]; then
+        session_id="$(echo "$res" | jq --raw-output '.["session.id"]')"
+        echo "Successfully authenticated."
+    else
+        err_msg="$(echo "$res" | jq --raw-output .error)"
+        echo "ERROR: Authentication: $err_msg" >&2
+        exit 20
+    fi
+}
+
+function upload {
+    echo "Uploading..."
+    res="$(curl -s -k -X POST \
+            -H "Content-Type: multipart/mixed" \
+            --form "session.id=$session_id" \
+            --form "ajax=upload" \
+            --form "file=@${ZIP_FILE};type=application/zip" \
+            --form "project=${PROJECT};type=text/plain" \
+            ${URL}/manager)"
+
+    project_id="$(echo "$res" | jq --raw-output .projectId)"
+    if [ "$projectId" != "null" ]; then
+        upload_version="$(echo "$res" | jq --raw-output .version)"
+        echo "Successfully uploaded '$ZIP_FILE' to project $PROJECT with ID $project_id with upload version ${upload_version}."
+    else
+        err_msg="$(echo "$res" | jq --raw-output .error)"
+        echo "ERROR: Upload: $err_msg" >&2
+        exit 3
+    fi
+}
+
+# Authenticate to obtain session.id.
+authenticate
+# Upload the zip file.
+upload
