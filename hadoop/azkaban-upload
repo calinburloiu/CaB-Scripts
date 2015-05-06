@@ -8,7 +8,7 @@ Upload a zip file to Azkaban for a specified project.
 You can optionally specify a configuration file which contains environment
 variables URL, USERNAME and PASSWORD for connecting to Azkaban web server. If
 no configuration file is passed a file named azkaban-upload.conf is searched in
-current directory and in /etc/azkaban-upload.conf is this order.
+current directory and in /etc/azkaban-upload.conf in this order.
 EOF
 )"
 
@@ -74,11 +74,11 @@ function upload {
             ${URL}/manager)"
 
     project_id="$(echo "$res" | jq --raw-output .projectId)"
-    if [ "$projectId" != "null" ]; then
+    err_msg="$(echo "$res" | jq --raw-output .error)"
+    if [ "$err_msg" == "null" ]; then
         upload_version="$(echo "$res" | jq --raw-output .version)"
         echo "Successfully uploaded '$ZIP_FILE' to project $PROJECT with ID $project_id with upload version ${upload_version}."
     else
-        err_msg="$(echo "$res" | jq --raw-output .error)"
         echo "ERROR: Upload: $err_msg" >&2
         exit 3
     fi
